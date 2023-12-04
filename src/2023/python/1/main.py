@@ -17,12 +17,12 @@ tests: dict[str, list[TestCase]] = {
     ]
 }
 
-part1_result = 142
-part2_result = 0
+PART1_RESULT = 142
+PART2_RESULT = 0
 
 def find_first_and_last(first: callable, last: callable, iterable: Iterable) -> tuple[int, int]:
     match iterable:
-        case l if type(iterable) == type(str()):
+        case l if isinstance(iterable, str):
             i1 = 0
             i2 = len(l) - 1
             found = False
@@ -30,9 +30,9 @@ def find_first_and_last(first: callable, last: callable, iterable: Iterable) -> 
             while not found:
                 current_first = l[i1]
                 correct_first = first(current_first)
-                
+
                 current_last  = l[i2]
-                correct_last  = first(current_last)
+                correct_last  = last(current_last)
 
                 if not correct_first:
                     i1 += 1
@@ -40,9 +40,11 @@ def find_first_and_last(first: callable, last: callable, iterable: Iterable) -> 
                     i2 -= 1
 
                 if correct_first and correct_last:
-                    found = True 
+                    found = True
                 elif i1 > i2 or i2 < i1:
-                    raise RuntimeError("Indices converged at centre and no first and last values were found.")
+                    raise RuntimeError(
+                        "Indices converged at centre and no first and last values were found."
+                        )
         case _:
             raise NotImplementedError(f"{type(iterable)} support not implemented")
 
@@ -50,10 +52,10 @@ def find_first_and_last(first: callable, last: callable, iterable: Iterable) -> 
 
 def is_number(n: str) -> bool:
     try:
-        type(int(n)) == type(int)
-    except:
+        isinstance(int(n), int)
+    except ValueError as _:
         return False
-    
+
     return True
 
 if __name__ == "__main__":
@@ -63,20 +65,22 @@ if __name__ == "__main__":
     last_func = is_number
 
     for test, output in tests['part1']:
-        first, last = find_first_and_last(first_func, last_func, test)
-        result = int(test[first] + test[last])
+        first_index, last_index = find_first_and_last(first_func, last_func, test)
+        result = int(test[first_index] + test[last_index])
         assert result == output, "Expected output ({output}), but got result ({result})."
         total_result += result
-    
-    assert total_result == part1_result, "Expected result of  ({part1_result}), but got result ({total_result})"
+
+    assert total_result == PART1_RESULT, \
+        "Expected result of  ({PART1_RESULT}), but got result ({total_result})"
 
     # Load input
-    with open(os.path.dirname(__file__) + '/input.txt') as f:
+    with open(os.path.dirname(__file__) + '/input.txt', encoding='utf-8') as f:
         puzzle_input = f.read()
+
     part1_solution = 0
 
     for line in puzzle_input.split('\n'):
-        first, last = find_first_and_last(first_func, last_func, line)
-        part1_solution += int(line[first] + line[last])
+        first_index, last_index = find_first_and_last(first_func, last_func, line)
+        part1_solution += int(line[first_index] + line[last_index])
 
-    print(f'Found solution to part 1: {part1_solution}')
+    print(f'Found solution for part 1: {part1_solution}')
