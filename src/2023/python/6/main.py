@@ -5,7 +5,7 @@ Time = int
 Distance = int
 Race = tuple[Time, Distance]
 
-def parse_input(race_data: str) -> list[Race]:
+def part1_parse_input(race_data: str) -> list[Race]:
     [times, distances] = race_data
     [_, times] = times.split("Time:")
     [_, distances] = distances.split("Distance:")
@@ -13,10 +13,20 @@ def parse_input(race_data: str) -> list[Race]:
     distances = string_to_ints(distances)
     races = []
 
-    for i, (time, distance) in enumerate(zip(times,distances)):
+    for time, distance in zip(times,distances):
         races.append((time, distance))
 
     return races
+
+def part2_parse_input(race_data: str) -> list[Race]:
+    [times, distances] = race_data
+    [_, times] = times.split("Time:")
+    [_, distances] = distances.split("Distance:")
+    time = times.replace(' ', '')
+    distance = distances.replace(' ', '')
+    time = int(time)
+    distance = int(distance)
+    return [(time, distance)]
 
 def string_to_ints(int_string: str) -> list[int]:
     ints = []
@@ -62,14 +72,13 @@ def part1_solve_races(races: list[Race]) -> int:
 if __name__ == "__main__":
     
     # Part 1 test
-    
     with open(os.path.dirname(__file__) + '/test.txt', encoding='utf-8') as f:
         part1_test_input = f.read()
         part1_test_input = list(filter(''.__ne__, part1_test_input.split('\n')))
 
     part1_test_correct_result = 288
 
-    part1_test_races = parse_input(part1_test_input)
+    part1_test_races = part1_parse_input(part1_test_input)
     part1_test_answer = part1_solve_races(part1_test_races)
 
     assert part1_test_answer == part1_test_correct_result, \
@@ -81,8 +90,32 @@ if __name__ == "__main__":
         part1_input = f.read()
         part1_input = list(filter(''.__ne__, part1_input.split('\n')))
     
-    part1_races = parse_input(part1_input)
+    part1_races = part1_parse_input(part1_input)
     part1_answer = part1_solve_races(part1_races)
 
     print(f"Found solution to part 1: {part1_answer}")
+
+    # Part 2 test
+    with open(os.path.dirname(__file__) + '/test.txt', encoding='utf-8') as f:
+        part2_test_input = f.read()
+        part2_test_input = list(filter(''.__ne__, part2_test_input.split('\n')))
+
+    part2_test_correct_result = 71503
+
+    part2_test_races = part2_parse_input(part2_test_input)
+    part2_test_answer = part1_solve_races(part2_test_races)
+
+    assert part2_test_answer == part2_test_correct_result, \
+        f"Part 2 test answer was ({part2_test_answer}) " + \
+            f"where it should be ({part2_test_correct_result})"
+    
+    # Part 2 solution
+    with open(os.path.dirname(__file__) + '/input.txt', encoding='utf-8') as f:
+        part2_input = f.read()
+        part2_input = list(filter(''.__ne__, part2_input.split('\n')))
+    
+    part2_races = part2_parse_input(part2_input)
+    part2_answer = part1_solve_races(part2_races)
+
+    print(f"Found solution to part 2: {part2_answer}")
     
