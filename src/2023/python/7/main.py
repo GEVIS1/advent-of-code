@@ -3,16 +3,14 @@ import re
 
 Rank = str
 
-rank_to_value = {
+class Card:
+    rank_to_value = {
     "T": 10,
     "J": 11,
     "Q": 12,
     "K": 13,
     "A": 14
 }
-
-class Card:
-
     def __init__(self, r: Rank):
         self.rank = self.__parse__(r)
 
@@ -30,16 +28,17 @@ class Card:
         b = other.rank
 
         if not a.isdigit():
-            a = rank_to_value[a]
+            a = self.rank_to_value[a]
 
         if not b.isdigit():
-            b = rank_to_value[b]
+            b = self.rank_to_value[b]
 
         print(f"{a = } {b = }")
         return int(a) > int(b)
     
     def __lt__(self, other):
         return not self.__gt__(other)
+        
 
 class Hand:
     def __init__(self, hand: str):
@@ -47,9 +46,16 @@ class Hand:
 
     def __parse__(self, hand: str):
         
+        if len(hand) != 5:
+            raise ValueError("Hand must be 5 cards long")
+
         for c in hand:
+            Card(c)    
             
-        return hand
+        return hand.upper()
+
+    def is_pair(self):
+        
 
 def decide_stronger_hand(a: Hand, b: Hand) -> Hand:
     
@@ -62,10 +68,9 @@ if __name__ == "__main__":
         part1_test_input = f.read()
         part1_test_input = list(filter(''.__ne__, part1_test_input.split('\n')))
 
-    card_a = Card('t')
-    card_b = Card('A')
+    hand_a = Hand('32T3K')
 
-    print(f"{card_a > card_b =}")
+    print(f"{hand_a.hand=}")
 
     part1_test_correct_result = 6440
 
