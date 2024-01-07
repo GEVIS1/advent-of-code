@@ -18,7 +18,6 @@ class Card:
         r = r.upper()
 
         if re.match(r'[0-9TJKQA]', r):
-            print(f"{r} is valid")
             return r
         
         raise ValueError(f"Invalid Card: {r}")
@@ -33,7 +32,6 @@ class Card:
         if not b.isdigit():
             b = self.rank_to_value[b]
 
-        print(f"{a = } {b = }")
         return int(a) > int(b)
     
     def __lt__(self, other):
@@ -55,7 +53,7 @@ class Hand:
         return hand.upper()
 
     def is_pair(self):
-        
+        hand_list = sort(list(self.hand))
 
 def decide_stronger_hand(a: Hand, b: Hand) -> Hand:
     
