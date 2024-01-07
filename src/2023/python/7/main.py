@@ -5,13 +5,22 @@ Rank = str
 
 class Card:
     rank_to_value = {
-    "T": 10,
-    "J": 11,
-    "Q": 12,
-    "K": 13,
-    "A": 14
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5,
+        "6": 6,
+        "7": 7,
+        "8": 8,
+        "9": 9,
+        "T": 10,
+        "J": 11,
+        "Q": 12,
+        "K": 13,
+        "A": 14
 }
-    def __init__(self, r: Rank):
+    def __init__(self, r: Rank = 'A'):
         self.rank = self.__parse__(r)
 
     def __parse__(self, r: Rank):
@@ -52,8 +61,27 @@ class Hand:
             
         return hand.upper()
 
-    def is_pair(self):
-        hand_list = sort(list(self.hand))
+    def is_pair(self, checked_rank = None):
+        # Todo: Remove need for card instance
+        c = Card()
+
+        checked_rank = str(checked_rank)
+        
+        hand_list = sorted(list(self.hand))
+
+        if checked_rank:
+            c = Card(checked_rank)
+            if hand_list.count(checked_rank) == 2:
+                return True
+        else:
+            for rank in c.rank_to_value.keys():
+                if hand_list.count(rank) == 2:
+                    return True
+            
+        return False
+        
+        
+
 
 def decide_stronger_hand(a: Hand, b: Hand) -> Hand:
     
@@ -66,9 +94,7 @@ if __name__ == "__main__":
         part1_test_input = f.read()
         part1_test_input = list(filter(''.__ne__, part1_test_input.split('\n')))
 
-    hand_a = Hand('32T3K')
-
-    print(f"{hand_a.hand=}")
+    print(f"{Hand('12344').is_pair(4) = }")
 
     part1_test_correct_result = 6440
 
