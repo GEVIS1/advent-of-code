@@ -1,6 +1,7 @@
 import os
 import re
 from collections import Counter
+from functools import cmp_to_key
 
 Rank = str
 rank_to_value = {
@@ -138,20 +139,33 @@ if __name__ == "__main__":
         part1_test_input = f.read()
         part1_test_input = list(filter(''.__ne__, part1_test_input.split('\n')))
 
-    print(f"Five of a kind: {Hand('AAAAA').result()}")
-    print(f"Four of a kind: {Hand('AA8AA').result()}")
-    print(f"Full house: {Hand('23332').result()}")
-    print(f"Three of a kind: {Hand('TTT98').result()}")
-    print(f"Two pair: {Hand('23432').result()}")
-    print(f"One pair: {Hand('A23A4').result()}")
-    print(f"High card: {Hand('23456').result()}")
-
-    print(f"{Hand('T5555') > Hand('J5555') = }")
-
     part1_test_correct_result = 6440
 
     # part1_test_races = part1_parse_input(part1_test_input)
     # part1_test_answer = part1_solve_races(part1_test_races)
+
+    part1_test_hands = []
+    part1_test_bids = []
+
+    for line in part1_test_input:
+        [hand, bid] = line.split(' ')
+        part1_test_hands.append(hand)
+        part1_test_bids.append(bid)
+
+    part1_test_hands_sorted = part1_test_hands.copy()
+    part1_test_hands_sorted.sort(key=cmp_to_key(lambda a,b: -1 if Hand(a) < Hand(b) else 1))
+
+    print(part1_test_hands_sorted)
+
+    correct_order = [
+        "32T3K",
+        "KTJJT",
+        "KK677",
+        "T55J5",
+        "QQQJA", 
+    ]
+
+    print(correct_order)
 
     # assert part1_test_answer == part1_test_correct_result, \
     #     f"Part 1 test answer was ({part1_test_answer}) " + \
