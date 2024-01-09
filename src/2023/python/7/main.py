@@ -122,15 +122,52 @@ class Hand:
     
     def __gt__(self, other):
         a = self.result()
-        b = self.result()
+        b = other.result()
         
+        # Tie-breaker
         if a == b:
-            return Card(self.hand[0]) > Card(other.hand[0])
+            print(f"a ({self.hand}) ({a}) is the same as b ({other.hand}) ({b})")
+            card_index = 0
+            hand_a_card = rank_to_value[self.hand[card_index]]
+            hand_b_card = rank_to_value[other.hand[card_index]]
+            print(f"Hand A card {card_index}: {hand_a_card}. Hand B card {card_index}: {hand_b_card}")
+            while hand_a_card == hand_b_card:
+                print("Top of while loop:")
+                card_index += 1
+                hand_a_card = rank_to_value[self.hand[card_index]]
+                hand_b_card = rank_to_value[other.hand[card_index]]
+                print(f"Hand A card {card_index}: {hand_a_card}. Hand B card {card_index}: {hand_b_card}")
+                
+            print(f"{hand_a_card=}\n{hand_b_card=}")
+            print(f"Returning {hand_a_card > hand_b_card =}")
+            return hand_a_card > hand_b_card
         
+        print(f"{hand_result_precedence.index(a) < hand_result_precedence.index(b) = }")
+
         return hand_result_precedence.index(a) < hand_result_precedence.index(b)
 
     def __lt__(self, other):
         return not self.__gt__(other)
+
+def sort_hands(hands: list[Hand]) -> list[Hand]:
+    hands_are_sorted = False
+    sorted_hands = hands.copy()
+    len_list = len(sorted_hands)
+
+    while not hands_are_sorted:
+        print("Top of while sorted loop")
+        hands_are_sorted = True
+        
+        for i in range(len_list):
+            print(f"Top of range loop on i = {i}")
+            end_of_list = i == len_list - 1
+            print(f"{end_of_list=}")
+            if not end_of_list and sorted_hands[i] > sorted_hands[i+1]:
+                hands_are_sorted = False
+                print(f"Swapping {sorted_hands[i]} with {sorted_hands[i+1]}")
+                sorted_hands[i], sorted_hands[i+1] = sorted_hands[i+1], sorted_hands[i]
+
+    return sorted_hands
 
 if __name__ == "__main__":
     
@@ -152,10 +189,9 @@ if __name__ == "__main__":
         part1_test_hands.append(hand)
         part1_test_bids.append(bid)
 
-    part1_test_hands_sorted = part1_test_hands.copy()
-    part1_test_hands_sorted.sort(key=cmp_to_key(lambda a,b: -1 if Hand(a) < Hand(b) else 1))
+    part1_test_hands_sorted = sort_hands(part1_test_hands)
 
-    print(part1_test_hands_sorted)
+    print(f"part1_test_hands_sorted=\t{part1_test_hands_sorted}")
 
     correct_order = [
         "32T3K",
@@ -165,8 +201,14 @@ if __name__ == "__main__":
         "QQQJA", 
     ]
 
-    print(correct_order)
+    print(f"correct_order=\t\t\t{correct_order}")
 
+    # print(f"{Hand('32T3K') < Hand('KTJJT')=}")
+    # print(f"{Hand('KTJJT') < Hand('KK677')=}")
+    # print(f"{Hand('KK677') < Hand('T55J5')=}")
+    # print(f"{Hand('T55J5') < Hand('QQQJA')=}")
+    # print(f"{Hand('QQQJA') > Hand('T55J5')=}") 
+    # print(f"{Hand('KTJJT') > Hand('KK677')=}")
     # assert part1_test_answer == part1_test_correct_result, \
     #     f"Part 1 test answer was ({part1_test_answer}) " + \
     #         f"where it should be ({part1_test_correct_result})"
