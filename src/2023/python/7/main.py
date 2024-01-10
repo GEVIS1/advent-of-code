@@ -19,9 +19,46 @@ hand_result_precedence = [
     "one_pair",
     "high_card",
 ]
+modes = {
+    "part1": 1,
+    "part2": 2,
+}
+part1_rank_to_value = {
+    "1": 1,
+    "2": 2,
+    "3": 3,
+    "4": 4,
+    "5": 5,
+    "6": 6,
+    "7": 7,
+    "8": 8,
+    "9": 9,
+    "T": 10,
+    "J": 11,
+    "Q": 12,
+    "K": 13,
+    "A": 14
+}
+part2_rank_to_value = {
+    "J": 0,
+    "1": 1,
+    "2": 2,
+    "3": 3,
+    "4": 4,
+    "5": 5,
+    "6": 6,
+    "7": 7,
+    "8": 8,
+    "9": 9,
+    "T": 10,
+    "Q": 12,
+    "K": 13,
+    "A": 14
+}
 
 class Card:
-    def __init__(self, r: Rank = 'A'):
+    def __init__(self, r: Rank = 'A', mode="part1"):
+        self.rank_to_value = part1_rank_to_value if mode == "part1" else part2_rank_to_value
         self.rank = self.__parse__(r)
 
     def __parse__(self, r: Rank):
@@ -49,52 +86,16 @@ class Card:
         
 
 class Hand:
-    modes = {
-        "part1": 1,
-        "part2": 2,
-    }
-    part1_rank_to_value = {
-        "1": 1,
-        "2": 2,
-        "3": 3,
-        "4": 4,
-        "5": 5,
-        "6": 6,
-        "7": 7,
-        "8": 8,
-        "9": 9,
-        "T": 10,
-        "J": 11,
-        "Q": 12,
-        "K": 13,
-        "A": 14
-    }
-    part2_rank_to_value = {
-        "J": 0,
-        "1": 1,
-        "2": 2,
-        "3": 3,
-        "4": 4,
-        "5": 5,
-        "6": 6,
-        "7": 7,
-        "8": 8,
-        "9": 9,
-        "T": 10,
-        "Q": 12,
-        "K": 13,
-        "A": 14
-}
 
     def __init__(self, hand: str, bid: int, mode="part1"):
         self.mode = self.verify_mode(mode)
-        self.rank_to_value = self.part1_rank_to_value if self.mode == "part1" else self.part2_rank_to_value
+        self.rank_to_value = part1_rank_to_value if self.mode == "part1" else part2_rank_to_value
         self.hand = self.__parse__(hand)
         self.bid = bid
 
     # This seems unnecessary
     def verify_mode(self, mode: str):
-        if mode not in self.modes:
+        if mode not in modes:
             raise ValueError("Incorrect mode selection.")
 
         return mode
@@ -104,7 +105,7 @@ class Hand:
             raise ValueError("Hand must be 5 cards long")
 
         for c in hand:
-            Card(c)
+            Card(c, self.mode)
             
         return hand.upper()
 
@@ -143,8 +144,7 @@ class Hand:
             value = self.rank_to_value[card]
             if value > max_card_value:
                 max_card_value, max_card_rank = value, card
-
-        return Card(max_card_rank)
+        return Card(max_card_rank, self.mode)
 
     def result(self):
         hand_counter = Counter(list(self.hand))
@@ -154,13 +154,15 @@ class Hand:
 
             # For part 2 convert the jack to achieve better result
             if self.mode == "part2" and "J" in hand_counter:
+                # TODO: fix
                 # This is naive and should be tested properly
-                most_represented_card, _  = max(hand_counter.items(), key=lambda i: i[1])
+                most_represented_card, most_represented_card_count = max(hand_counter.items(), key=lambda i: i[1])
                 jokered_hand_counter = hand_counter.copy()
-                jokered_hand_counter[most_represented_card] += 1
-                del jokered_hand_counter["J"]
+                
+                if most_represented_card_count < len(self.hand):
+                    jokered_hand_counter[most_represented_card] += hand_counter["J"]
+                    del jokered_hand_counter["J"]
 
-                print(f"Joker rule triggered:\n{hand_counter=}\n{jokered_hand_counter=}")
                 if result_function(jokered_hand_counter):
                     return possible_result
 
@@ -172,10 +174,9 @@ class Hand:
     def __gt__(self, other):
         a = self.result()
         b = other.result()
-        
+
         # Tie-breaker
         if a == b:
-
             card_index = 0
             hand_a_card = self.rank_to_value[self.hand[card_index]]
             hand_b_card = self.rank_to_value[other.hand[card_index]]
@@ -218,17 +219,11 @@ def calculate_sum(sorted_hands: list[Hand]):
     return sum(h.bid * (i + 1) for i,h in enumerate(sorted_hands))
 
 if __name__ == "__main__":
-    
     # Part 1 test
     part1_test_input = load_input('./test.txt')
     part1_test_correct_result = 6440
-
-    # part1_test_races = part1_parse_input(part1_test_input)
-    # part1_test_answer = part1_solve_races(part1_test_races)
-
     part1_test_hands = parse_input(part1_test_input, "part1")
     part1_test_hands_sorted = sorted(part1_test_hands)
-
     part1_test_answer = calculate_sum(part1_test_hands_sorted)
 
     assert part1_test_answer == part1_test_correct_result, \
@@ -253,3 +248,11 @@ if __name__ == "__main__":
     assert part2_test_answer == part2_test_correct_result, \
         f"Part 2 test answer was ({part2_test_answer}) " + \
             f"where it should be ({part2_test_correct_result})"
+    
+    # Part 2 solution
+    part2_solution_input = load_input('./input.txt')
+    part2_solution_hands = parse_input(part2_solution_input, "part2")
+    part2_solution_hands_sorted = sorted(part2_solution_hands)
+    part2_solution_answer = calculate_sum(part2_test_hands_sorted)
+
+    print(f"Part 2 solution found: {part2_solution_answer}")
