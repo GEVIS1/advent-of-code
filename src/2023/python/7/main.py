@@ -153,18 +153,24 @@ class Hand:
             result_function = getattr(self, possible_result)
 
             # For part 2 convert the jack to achieve better result
+            # This solution is naive and should be tested properly
+            # It's also very ugly code. This would be refactored if it wasn't for a puzzle.
             if self.mode == "part2" and "J" in hand_counter:
-                # TODO: fix
-                # This is naive and should be tested properly
-                most_represented_card, most_represented_card_count = max(hand_counter.items(), key=lambda i: i[1])
-                jokered_hand_counter = hand_counter.copy()
-                
-                if most_represented_card_count < len(self.hand):
-                    jokered_hand_counter[most_represented_card] += hand_counter["J"]
-                    del jokered_hand_counter["J"]
-
-                if result_function(jokered_hand_counter):
+                # If they're all jokers don't do anything special
+                if all([k == "J" for k in hand_counter.keys()]) \
+                    and result_function(hand_counter):
                     return possible_result
+
+                else:
+                    most_represented_card, most_represented_card_count = max(hand_counter.items(), key=lambda i: i[1])
+                    jokered_hand_counter = hand_counter.copy()
+
+                    if most_represented_card_count < len(self.hand):
+                        jokered_hand_counter[most_represented_card] += hand_counter["J"]
+                        del jokered_hand_counter["J"]
+
+                    if result_function(jokered_hand_counter):
+                        return possible_result
 
             elif result_function(hand_counter):
                 return possible_result
