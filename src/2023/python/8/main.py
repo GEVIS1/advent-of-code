@@ -103,7 +103,6 @@ if __name__ == "__main__":
     # Part 1 solution
     part1_solution_input = load_input('./input.txt')
     [part1_solution_instructions, part1_solution_nodes] = parse_input(part1_solution_input)
-    print(f"{part1_solution_instructions = }")
     part1_solution_answer = follow_steps(part1_solution_instructions, part1_solution_nodes)
     print(f"Part 1 solution: {part1_solution_answer}")
 
