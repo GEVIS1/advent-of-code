@@ -1,5 +1,5 @@
 import os
-import time
+from collections import deque
 
 # pipe_exits = {
 #         "|": ( 0, -1),
@@ -56,18 +56,24 @@ def follow_path(tiles: list[str]) -> list[str]:
     ran_once = False
     steps_taken = 0
     path_distances[start_row][start_col] = str(steps_taken)
+    tile_deque = deque()
 
-    while current_indices != start_indices or not ran_once:
+    while len(deque):
         ran_once = True
         possible_directions = find_possible_directions(tiles, current_indices)
 
-        if len(possible_directions) == 1:
-            col, row = possible_directions[0][2]
+        # if len(possible_directions) == 1:
+        #     col, row = possible_directions[0][2]
 
-            # TODO: This naive solution breaks on the actual input.
-            # We need a better way to determine if we are at the end.
-            if tiles[row][col] == "S":
-                break
+        #     # TODO: This naive solution breaks on the actual input.
+        #     # We need a better way to determine if we are at the end.
+        #     if tiles[row][col] == "S":
+        #         break
+
+        # Remove "S" if we didn't break.
+        # possible_directions = list(filter(lambda item: item[1] != "S", possible_directions))
+
+        # Use a deque and visit all possible locations
 
         for direction, tile, indices in possible_directions:
             curr_col, curr_row = current_indices 
