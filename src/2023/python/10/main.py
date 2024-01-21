@@ -1,5 +1,5 @@
 import os
-from collections import deque
+from queue import SimpleQueue
 
 # pipe_exits = {
 #         "|": ( 0, -1),
@@ -52,15 +52,24 @@ def follow_path(tiles: list[str]) -> list[str]:
     
     start_indices = find_start(tiles)
     start_col, start_row = start_indices
-    current_indices = start_indices
-    ran_once = False
     steps_taken = 0
     path_distances[start_row][start_col] = str(steps_taken)
-    tile_deque = deque()
+    tiles_to_visit = SimpleQueue()
 
-    while len(deque):
-        ran_once = True
-        possible_directions = find_possible_directions(tiles, current_indices)
+    for tile in find_possible_directions(tiles, start_indices):
+        tiles_to_visit.put(tile)
+
+    while not tiles_to_visit.empty():
+        cur_direction, cur_tile, current_indices = tiles_to_visit.get()
+        
+        if prev_steps := path_distances[start_row][start_col] == ".":
+            steps_taken += 1
+            path_distances[start_row][start_col] = str(steps_taken)
+        else:
+            steps_taken = int(prev_steps)
+            
+
+        # possible_directions = find_possible_directions(tiles, current_indices)
 
         # if len(possible_directions) == 1:
         #     col, row = possible_directions[0][2]
@@ -75,17 +84,17 @@ def follow_path(tiles: list[str]) -> list[str]:
 
         # Use a deque and visit all possible locations
 
-        for direction, tile, indices in possible_directions:
-            curr_col, curr_row = current_indices 
-            move_col, move_row = indices
-            already_visited_tile = path_distances[move_row][move_col] != "."
+        # for direction, tile, indices in possible_directions:
+        #     curr_col, curr_row = current_indices 
+        #     move_col, move_row = indices
+        #     already_visited_tile = path_distances[move_row][move_col] != "."
             
-            if not already_visited_tile or indices == start_indices:
-                #calculated_distance = (abs(move_col - start_col) + abs(move_row - start_row))
-                steps_taken += 1
-                path_distances[move_row][move_col] = str(steps_taken) # TODO: Make int?
-                current_indices = indices
-                break
+        #     if not already_visited_tile or indices == start_indices:
+        #         #calculated_distance = (abs(move_col - start_col) + abs(move_row - start_row))
+        #         steps_taken += 1
+        #         path_distances[move_row][move_col] = str(steps_taken) # TODO: Make int?
+        #         current_indices = indices
+        #         break
 
     return path_distances
 
