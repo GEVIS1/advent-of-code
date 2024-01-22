@@ -47,6 +47,9 @@ def load_input(path: str) -> list[str]:
     
     return file_input
 
+def follow_path_recursive(tiles: list[str]):
+    pass
+
 def follow_path(tiles: list[str]) -> list[str]:
     path_distances = [["." for c in row] for row in tiles]
     
@@ -60,11 +63,12 @@ def follow_path(tiles: list[str]) -> list[str]:
         tiles_to_visit.put(tile)
 
     while not tiles_to_visit.empty():
-        cur_direction, cur_tile, current_indices = tiles_to_visit.get()
+        current_direction, current_tile, current_indices = tiles_to_visit.get()
+        cur_col, cur_row = current_indices
         
-        if prev_steps := path_distances[start_row][start_col] == ".":
+        if prev_steps := path_distances[cur_row][cur_col] == ".":
             steps_taken += 1
-            path_distances[start_row][start_col] = str(steps_taken)
+            path_distances[cur_row][cur_col] = str(steps_taken)
         else:
             steps_taken = int(prev_steps)
             
