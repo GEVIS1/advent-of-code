@@ -23,33 +23,28 @@ tests: dict[str, list[tuple[list[str], list[Indice]]]] = {
 }
 
 def find_valid_schematic_parts(schematic: list[str]) -> int:
+    part_numbers = find_part_number_indices(schematic)
     symbols = find_symbol_indices(schematic)
-    part_numbers = []
+    valid_part_numbers = []
 
-    part_number = ''
-    for row, line in enumerate(schematic):
-        lines = [
-            schematic[row - 1] if row > 0 else '.' * len(line),
-            schematic[row],
-            schematic[row + 1] if row < len(schematic) - 1 else '.' * len(line)
-        ]
-        for col, char in enumerate(line):
+    print(symbols)
 
-            # We found the end of a number
-            if not char.isdigit():
-                if part_number and adjacent_to_symbol(part_number, col - len(part_number), lines):
-                    part_numbers.append(int(part_number))
-                part_number = ''
-            # We are at the end of a line (I.E. the end of the current number)
-            elif col == len(line) - 1:
-                part_number += char
-                if part_number and adjacent_to_symbol(part_number, col, lines):
-                    part_numbers.append(int(part_number))
-                part_number = ''
-            else:
-                part_number += char
-    
-    return part_numbers
+    for part_number, part_number_indices in part_numbers:
+        part_valid = False
+        for part_row, part_col in part_number_indices:
+            if part_valid:
+                break
+            for adj_row in range(-1,2):
+                for adj_col in range(-1,2):
+                    row = part_row - adj_row
+                    col = part_col - adj_col
+
+                    if (row, col) in symbols:
+                        part_valid = True
+                        valid_part_numbers.append(part_number)
+
+
+    return valid_part_numbers
 
 def find_symbol_indices(schematic: list[str]) -> list[tuple[int, int]]:
     indices = []
@@ -64,17 +59,23 @@ def find_symbol_indices(schematic: list[str]) -> list[tuple[int, int]]:
 def is_symbol(char: str) -> bool:
     return re.match(r'^[^.0-9]$', char)
 
-def adjacent_to_symbol(part_number: str, start_col: int, lines: list[str]) -> bool:
-    part_number_row = 1
+def find_part_number_indices(schematic: list[str]) -> dict[tuple[int,int], int]:
+    part_numbers = []
+    current_number = ''
+    current_number_indices = []
+    
+    for row, row_string in enumerate(schematic):
+        for col, char in enumerate(row_string):
+            if char.isdigit():
+                current_number += char
+                current_number_indices.append((row, col))
+            else:
+                if current_number:
+                    part_numbers.append((int(current_number), current_number_indices))
+                    current_number = ''
+                    current_number_indices = []
 
-    for current_char in range(start_col, start_col + (len(part_number))):
-        for row in range(-1, 2):
-            for col in range(-1, 2):
-                if -1 < part_number_row + row < len(lines[0]) \
-                and -1 < current_char + col < len(lines[0]) \
-                and is_symbol(lines[part_number_row + row][current_char + col]):
-                    return True
-    return False
+    return part_numbers
 
 if __name__ == "__main__":
     # Part 1 tests
